@@ -7,6 +7,7 @@ import bg.sofia.uni.fmi.mjt.uno.server.exception.CanNotPlayThisCardException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.nio.channels.SelectionKey;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -22,14 +23,16 @@ public class UnoPlayerTest {
     private Deck mockHand;
     private Card mockCard;
     private Card mockOnCard;
+    private SelectionKey key;
 
     @BeforeEach
     void setUp() {
         mockHand = mock(Deck.class);
         mockCard = mock(Card.class);
         mockOnCard = mock(Card.class);
+        key = mock();
 
-        player = new UnoPlayer("Player1");
+        player = new UnoPlayer("Player1", key);
         player.setHand(mockHand);
     }
 
@@ -87,13 +90,13 @@ public class UnoPlayerTest {
 
     @Test
     void testEqualsTrue() {
-        UnoPlayer samePlayer = new UnoPlayer( "Player1");
+        UnoPlayer samePlayer = new UnoPlayer( "Player1", key);
         assertEquals(player, samePlayer, "Equals should return false when it is the same player");
     }
 
     @Test
     void testEqualsDifferentPlayer() {
-        UnoPlayer differentPlayer = new UnoPlayer("Player2");
+        UnoPlayer differentPlayer = new UnoPlayer("Player2", key);
         assertNotEquals(player, differentPlayer, "Equals should return false when it is a different player");
     }
 

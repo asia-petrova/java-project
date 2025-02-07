@@ -12,6 +12,7 @@ import com.google.gson.reflect.TypeToken;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.channels.SelectionKey;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,23 +29,22 @@ public class Users {
         }
     }
 
-    public void registerUser(String username, String password) throws UserAlreadyExistsException {
+    public void registerUser(String username, int password) throws UserAlreadyExistsException {
         if (users.containsKey(username)) {
             throw new UserAlreadyExistsException("Username: " + username + " is already registered.");
         }
-        users.put(username, password.hashCode());
+        users.put(username, password);
     }
 
-    public Player login(String username, String password) throws UserDoesNotExistException, WrongPasswordException {
+    public Player login(String username, int password, SelectionKey key)
+        throws UserDoesNotExistException, WrongPasswordException {
         if (!users.containsKey(username)) {
             throw new UserDoesNotExistException("The given username: " + username + " does not exist.");
         }
-        Integer givenPass = password.hashCode();
-        if (!givenPass.equals(users.get(username))) {
+        if (password != users.get(username)) {
             throw new WrongPasswordException("Wrong password.");
         }
-
-        return new UnoPlayer(username);
+        return new UnoPlayer(username, key);
     }
 
     void saveUsersInFile() throws ProblemWithFileUsersException {

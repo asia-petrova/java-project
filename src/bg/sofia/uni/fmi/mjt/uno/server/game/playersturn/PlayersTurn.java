@@ -31,4 +31,15 @@ public class PlayersTurn {
     public int current() {
         return index;
     }
+
+    public void decrease() {
+        max--;
+        if (index >= max) {
+            index = 0;
+        }
+    }
+
+    public int getMax() {
+        return max;
+    }
 }

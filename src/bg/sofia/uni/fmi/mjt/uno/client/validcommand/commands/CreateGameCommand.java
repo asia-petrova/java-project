@@ -16,7 +16,7 @@ public class CreateGameCommand implements CheckCommand {
     public String getDescription() {
         return """
             This command can take 1 or 2 parameters!
-            create-game --number-of-players=<number> --game-id=<game-id> or
+            create-game --players=<number> --game-id=<game-id> or
             create-game --game-id=<game-id> and the number of players is 2
             """;
     }

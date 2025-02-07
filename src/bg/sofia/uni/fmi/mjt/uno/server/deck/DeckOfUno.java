@@ -8,6 +8,7 @@ import java.util.List;
 
 public class DeckOfUno implements Deck {
     private List<Card> cards;
+    int counter = 0;
 
     public DeckOfUno(List<Card> cards) {
         this.cards = cards;
@@ -23,6 +24,10 @@ public class DeckOfUno implements Deck {
     @Override
     public void putBack(Card card) {
         cards.add(card);
+        counter++;
+        if (counter == cards.size()) {
+            counter = 0;
+        }
     }
 
     @Override
@@ -43,10 +48,10 @@ public class DeckOfUno implements Deck {
     @Override
     public String showCards() {
         StringBuilder result = new StringBuilder();
-        for (Card card : cards) {
-            result.append(card.toString()).append(" ");
+        for (int i = 0; i < counter; i++) {
+            result.append(cards.getLast().toString()).append(" ");
         }
-        return result.toString();
+        return result.reverse().toString();
     }
 
     @Override

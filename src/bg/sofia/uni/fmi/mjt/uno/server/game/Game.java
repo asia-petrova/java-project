@@ -5,9 +5,11 @@ import bg.sofia.uni.fmi.mjt.uno.server.card.Color;
 import bg.sofia.uni.fmi.mjt.uno.server.deck.Deck;
 import bg.sofia.uni.fmi.mjt.uno.server.exception.CanNotPlayThisCardException;
 import bg.sofia.uni.fmi.mjt.uno.server.exception.GameAlreadyFullException;
+import bg.sofia.uni.fmi.mjt.uno.server.exception.NotInGameException;
 import bg.sofia.uni.fmi.mjt.uno.server.exception.NotRightTurnOfPlayerException;
 import bg.sofia.uni.fmi.mjt.uno.server.player.Player;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface Game {
@@ -15,21 +17,18 @@ public interface Game {
 
     List<Card> getFromDeck();
 
-    void setDeck(Deck deck);
+    void setDeck(Deck deck) throws IOException;
 
     void changeDirection();
 
-    void setStatus(Status status);
-
     void increment(int amount);
-
-    Status getStatus();
 
     void putPlayer(Player player) throws GameAlreadyFullException;
 
     String getId();
 
-    void executePlayersCard(int index, Player player) throws NotRightTurnOfPlayerException, CanNotPlayThisCardException;
+    void executePlayersCard(int index, Player player)
+        throws NotRightTurnOfPlayerException, CanNotPlayThisCardException, IOException, NotInGameException;
 
     Card lastPlayedCard();
 
@@ -42,4 +41,12 @@ public interface Game {
     void setCurrentColor(Color color);
 
     int playersInGame();
+
+    Player getCreator();
+
+    void acceptEffect(Player player) throws NotRightTurnOfPlayerException, IOException;
+
+    String getLastPlayedCards();
+
+    void leaveGame(Player player) throws NotInGameException;
 }

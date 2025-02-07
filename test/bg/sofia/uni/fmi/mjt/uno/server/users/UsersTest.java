@@ -4,11 +4,11 @@ import bg.sofia.uni.fmi.mjt.uno.server.exception.ProblemWithFileUsersException;
 import bg.sofia.uni.fmi.mjt.uno.server.exception.UserAlreadyExistsException;
 import bg.sofia.uni.fmi.mjt.uno.server.exception.UserDoesNotExistException;
 import bg.sofia.uni.fmi.mjt.uno.server.exception.WrongPasswordException;
-import com.google.gson.Gson;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.channels.SelectionKey;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -18,46 +18,50 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+
 public class UsersTest {
     private Users users;
+    private SelectionKey key;
 
     @BeforeEach
     void setUp() {
         users = new Users();
+        key = mock();
     }
 
     @Test
     void testRegisterUserSuccessfully() throws UserAlreadyExistsException {
-        users.registerUser("testUser", "password");
-        assertDoesNotThrow(() -> users.login("testUser", "password"),
+        users.registerUser("testUser", 123);
+        assertDoesNotThrow(() -> users.login("testUser", 123, key),
             "registerUser() should not fail!");
     }
 
     @Test
     void testRegisterUserAlreadyExists() throws UserAlreadyExistsException {
-        users.registerUser("testUser", "password");
-        assertThrows(UserAlreadyExistsException.class, () -> users.registerUser("testUser", "newPassword"),
+        users.registerUser("testUser", 123);
+        assertThrows(UserAlreadyExistsException.class, () -> users.registerUser("testUser", 1234),
             "registerUser() should throw when try to register already existing user!"
             );
     }
 
     @Test
     void testLoginSuccessfully() throws UserAlreadyExistsException, UserDoesNotExistException, WrongPasswordException {
-        users.registerUser("testUser", "password");
-        assertNotNull(users.login("testUser", "password"),
+        users.registerUser("testUser", 123);
+        assertNotNull(users.login("testUser", 123, key),
             "login() with existing user should return object!");
     }
 
     @Test
     void testLoginWithWrongPassword() throws UserAlreadyExistsException {
-        users.registerUser("testUser", "password");
-        assertThrows(WrongPasswordException.class, () -> users.login("testUser", "wrongPassword"),
+        users.registerUser("testUser", 123);
+        assertThrows(WrongPasswordException.class, () -> users.login("testUser", 1234, key),
             "login() with wrong password user should throw!");
     }
 
     @Test
     void testLoginWithNonExistentUser() {
-        assertThrows(UserDoesNotExistException.class, () -> users.login("nonExistent", "password"),
+        assertThrows(UserDoesNotExistException.class, () -> users.login("nonExistent", 123, key),
             "login() with non-existent user should throw!");
     }
 
