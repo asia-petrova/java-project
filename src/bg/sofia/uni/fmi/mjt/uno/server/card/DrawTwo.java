@@ -19,12 +19,18 @@ public class DrawTwo implements Card {
 
     @Override
     public boolean canPlay(Card card, Color currentColor) {
+        if (card == null || currentColor == null) {
+            throw new IllegalArgumentException("Incorrect arguments!");
+        }
         return color == currentColor || card instanceof DrawTwo;
     }
 
     @Override
     public Consumer<Game> play() {
         return game -> {
+            if (game == null) {
+                throw new NullPointerException("Game is null!");
+            }
             game.increment(draw);
             game.setCurrentColor(color);
             game.putInDeck(this);

@@ -20,7 +20,7 @@ public interface Player {
 
     String getUserName();
 
-    void winGame();
+    boolean winGame();
 
     void setDisplayName(String displayName);
 
@@ -43,4 +43,6 @@ public interface Player {
     String getCreatedGame();
 
     int getDeckSize();
+
+    boolean canDraw(Card topCard, Color color);
 }

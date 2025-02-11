@@ -1,6 +1,7 @@
 package bg.sofia.uni.fmi.mjt.uno.server.deck;
 
 import bg.sofia.uni.fmi.mjt.uno.server.card.Card;
+import bg.sofia.uni.fmi.mjt.uno.server.card.Color;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,7 +9,7 @@ import java.util.List;
 
 public class DeckOfUno implements Deck {
     private List<Card> cards;
-    int counter = 0;
+    int counter = 1;
 
     public DeckOfUno(List<Card> cards) {
         this.cards = cards;
@@ -23,15 +24,23 @@ public class DeckOfUno implements Deck {
 
     @Override
     public void putBack(Card card) {
+        if (card == null) {
+            throw new IllegalArgumentException("card is null");
+        }
+
         cards.add(card);
         counter++;
         if (counter == cards.size()) {
-            counter = 0;
+            counter = 1;
         }
     }
 
     @Override
     public void putBack(List<Card> cards) {
+        if (cards == null) {
+            throw new IllegalArgumentException("card is null");
+        }
+
         this.cards.addAll(cards);
     }
 
@@ -47,11 +56,11 @@ public class DeckOfUno implements Deck {
 
     @Override
     public String showCards() {
-        StringBuilder result = new StringBuilder();
+        String result = "";
         for (int i = 0; i < counter; i++) {
-            result.append(cards.getLast().toString()).append(" ");
+            result = cards.get(getSize() - 1 - i) + " " + result;
         }
-        return result.reverse().toString();
+        return result;
     }
 
     @Override
@@ -68,6 +77,9 @@ public class DeckOfUno implements Deck {
 
     @Override
     public List<Card> getCards(int count) {
+        if (count < 0) {
+            throw new IllegalArgumentException("Cannot get negative number of cards!");
+        }
         List<Card> cardsToReturn;
         if (cards.size() > count) {
             cardsToReturn = new ArrayList<>(count);
@@ -84,8 +96,31 @@ public class DeckOfUno implements Deck {
 
     @Override
     public void putHandOfPlayer(Deck hand) {
+        if (hand == null) {
+            throw new IllegalArgumentException("Cannot put null hand!");
+        }
+
         for (int i = 0; i < hand.getSize(); ++i) {
             cards.add(hand.getFront());
         }
+    }
+
+    @Override
+    public boolean match(Card card, Color color) {
+        if (card == null || color == null) {
+            throw new IllegalArgumentException("Cannot match null color or card!");
+        }
+
+        for (Card c : cards) {
+            if (c.canPlay(card, color)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean emptyDeck() {
+        return cards.isEmpty();
     }
 }

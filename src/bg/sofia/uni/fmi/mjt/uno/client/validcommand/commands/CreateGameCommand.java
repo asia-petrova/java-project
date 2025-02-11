@@ -18,6 +18,7 @@ public class CreateGameCommand implements CheckCommand {
             This command can take 1 or 2 parameters!
             create-game --players=<number> --game-id=<game-id> or
             create-game --game-id=<game-id> and the number of players is 2
+            the <number> if its given should be more than 1
             """;
     }
 
@@ -27,6 +28,6 @@ public class CreateGameCommand implements CheckCommand {
         if (numberOfPlayers == null) {
             return result;
         }
-        return result && numberOfPlayers.matches("--players=.+");
+        return result && numberOfPlayers.matches("--players=([3-9]|[1-9]\\d+)");
     }
 }

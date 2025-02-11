@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.util.List;
 
 public interface Game {
-    //void start();
 
     List<Card> getFromDeck();
 
@@ -49,4 +48,17 @@ public interface Game {
     String getLastPlayedCards();
 
     void leaveGame(Player player) throws NotInGameException;
+
+    void spectate(Player player) throws CanNotPlayThisCardException, IOException;
+
+    void draw(Player player) throws NotRightTurnOfPlayerException, IOException, CanNotPlayThisCardException;
+
+    boolean end();
+
+    boolean start();
+
+    GameHistory getHistory();
+
+    Player inGame(Player player);
+
 }

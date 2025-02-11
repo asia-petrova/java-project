@@ -11,9 +11,13 @@ import java.nio.channels.SelectionKey;
 
 public class AcceptEffect implements Command {
     @Override
-    public void execute(Manager manager, SelectionKey key)
+    public String execute(Manager manager, SelectionKey key)
         throws UserNotLoggedException,
         IOException, GameDoesNotExistsException, NotRightTurnOfPlayerException {
+        if (manager == null || key == null) {
+            throw new IllegalArgumentException("Arguments cannot be null!");
+        }
+
         Object obj = key.attachment();
         if (obj == null) {
             throw new UserNotLoggedException("User not logged in cannot create game");
@@ -22,6 +26,7 @@ public class AcceptEffect implements Command {
         if (!player.inGame()) {
             throw new GameDoesNotExistsException("Player should be in game to have a hand to show");
         }
-        manager.acceptEffect(player);
+        manager.getGame(player).acceptEffect(player);
+        return "Accepted effect";
     }
 }

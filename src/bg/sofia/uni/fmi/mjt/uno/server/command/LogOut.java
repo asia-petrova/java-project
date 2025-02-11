@@ -10,11 +10,16 @@ public class LogOut implements Command {
     public LogOut() { }
 
     @Override
-    public void execute(Manager manager, SelectionKey key) throws UserNotLoggedException {
+    public String execute(Manager manager, SelectionKey key) throws UserNotLoggedException {
+        if (manager == null || key == null) {
+            throw new IllegalArgumentException("Arguments cannot be null!");
+        }
+
         Object player =  key.attachment();
         if (player == null) {
             throw new UserNotLoggedException("You have to be logged in order to logout!");
         }
         key.attach(null);
+        return "logged out";
     }
 }

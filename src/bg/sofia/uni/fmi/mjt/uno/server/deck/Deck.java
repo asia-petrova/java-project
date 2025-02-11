@@ -1,6 +1,7 @@
 package bg.sofia.uni.fmi.mjt.uno.server.deck;
 
 import bg.sofia.uni.fmi.mjt.uno.server.card.Card;
+import bg.sofia.uni.fmi.mjt.uno.server.card.Color;
 import bg.sofia.uni.fmi.mjt.uno.server.player.Player;
 
 import java.util.List;
@@ -25,4 +26,8 @@ public interface Deck {
     List<Card> getCards(int count);
 
     void putHandOfPlayer(Deck hand);
+
+    boolean match(Card card, Color color);
+
+    boolean emptyDeck();
 }

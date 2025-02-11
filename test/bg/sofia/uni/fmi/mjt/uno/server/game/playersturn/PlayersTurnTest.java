@@ -13,14 +13,22 @@ public class PlayersTurnTest {
         turn = new PlayersTurn(10);
     }
 
-
     @Test
     public void testNext() {
         int expected = turn.next();
         for (int i = 0; i < 9; i++) {
             turn.next();
         }
+        assertEquals(expected, turn.next(), "Full cycle it should be the same index!");
+    }
 
+    @Test
+    public void testNextChangedDirection() {
+        int expected = turn.next();
+        turn.changeDirection();
+        for (int i = 0; i < 9; i++) {
+            turn.next();
+        }
         assertEquals(expected, turn.next(), "Full cycle it should be the same index!");
     }
 
@@ -31,5 +39,12 @@ public class PlayersTurnTest {
         turn.changeDirection();
 
         assertEquals(expected, turn.next(), "Changed direction we should return the same index!");
+    }
+
+    @Test
+    public void testDecrease() {
+        int expected = turn.getMax() - 1;
+        turn.decrease();
+        assertEquals(expected, turn.getMax(), "Decrease should change max!");
     }
 }

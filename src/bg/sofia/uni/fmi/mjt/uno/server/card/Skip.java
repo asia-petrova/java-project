@@ -18,12 +18,18 @@ public class Skip implements Card {
 
     @Override
     public boolean canPlay(Card card, Color currentColor) {
+        if (card == null || currentColor == null) {
+            throw new IllegalArgumentException("Incorrect arguments!");
+        }
         return color == currentColor || card instanceof Skip;
     }
 
     @Override
     public Consumer<Game> play() {
         return game -> {
+            if (game == null) {
+                throw new NullPointerException("Game is null!");
+            }
             game.skippedTurn();
             game.setCurrentColor(color);
             game.putInDeck(this);

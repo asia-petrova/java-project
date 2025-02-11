@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -40,7 +41,8 @@ public class SkipTest {
 
     @Test
     public void testGetDescription() {
-        assertEquals("Skip yellow", card.getDescription());
+        assertEquals("Skip yellow", card.getDescription(),
+            "Description of the card should be: Skip yellow!");
     }
 
     @Test
@@ -51,4 +53,28 @@ public class SkipTest {
         verify(game, times(1)).putInDeck(card);
         verify(game, times(1)).skippedTurn();
     }
+
+    @Test
+    public void testPlayThrows() {
+        assertThrows(NullPointerException.class, () -> card.play().accept(null),
+            "Function should trow with null game");
+    }
+    @Test
+    public void testCanPlayThrowFirsArgument() {
+        assertThrows(IllegalArgumentException.class, ()->card.canPlay(null, Color.YELLOW),
+            "canPlay() should throw with null argument!");
+    }
+
+    @Test
+    public void testCanPlayThrowSecondArgument() {
+        assertThrows(IllegalArgumentException.class, ()->card.canPlay(card, null),
+            "canPlay() should throw with null argument!");
+    }
+
+    @Test
+    public void testCanPlayThrowNullArguments() {
+        assertThrows(IllegalArgumentException.class, ()->card.canPlay(null, null),
+            "canPlay() should throw with null argument!");
+    }
+
 }

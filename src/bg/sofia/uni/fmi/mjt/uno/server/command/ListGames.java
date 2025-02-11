@@ -17,12 +17,11 @@ public class ListGames implements Command {
     }
 
     @Override
-    public void execute(Manager manager, SelectionKey key) throws IOException {
-        String message = manager.getWithStatus(status);
-        SocketChannel channel = (SocketChannel) key.channel();
-        ByteBuffer buffer = ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8));
-        buffer.flip();
-        channel.write(buffer);
-        buffer.clear();
+    public String execute(Manager manager, SelectionKey key) throws IOException {
+        if (manager == null || key == null) {
+            throw new IllegalArgumentException("Arguments cannot be null!");
+        }
+
+        return manager.getWithStatus(status);
     }
 }

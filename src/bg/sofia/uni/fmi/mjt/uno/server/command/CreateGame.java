@@ -18,12 +18,17 @@ public class CreateGame implements Command {
     }
 
     @Override
-    public void execute(Manager manager, SelectionKey key) throws GameAlreadyExistsException, UserNotLoggedException {
+    public String execute(Manager manager, SelectionKey key) throws GameAlreadyExistsException, UserNotLoggedException {
+        if (manager == null || key == null) {
+            throw new IllegalArgumentException("Arguments cannot be null!");
+        }
+
         Object player = key.attachment();
         if (player == null) {
             throw new UserNotLoggedException("User not logged in cannot create game");
         }
 
         manager.addGame(gameId, (Player) player, numberOfPlayers);
+        return "execute";
     }
 }

@@ -16,9 +16,9 @@ import java.io.IOException;
 import java.nio.channels.SelectionKey;
 
 public interface Command {
-    String REGEX = "\\+s";
+    String REGEX = "\\s+";
 
-    void execute(Manager manager, SelectionKey key) throws UserAlreadyExistsException, UserDoesNotExistException,
+    String execute(Manager manager, SelectionKey key) throws UserAlreadyExistsException, UserDoesNotExistException,
         WrongPasswordException, UserNotLoggedException, IOException, GameAlreadyExistsException,
         GameAlreadyFullException, GameDoesNotExistsException, NotRightTurnOfPlayerException,
         CanNotPlayThisCardException, NotInGameException;
@@ -42,6 +42,7 @@ public interface Command {
             case "play-plus-four" -> new PlayPlusFour(parts[1], parts[2]);
             case "show-played-cards" -> new ShowPlayedCards();
             case "leave" -> new Leave();
+            case "spectate" -> new Spectate();
             default -> throw new IllegalStateException("Unexpected value: " + parts[0]);
         };
     }

@@ -19,8 +19,12 @@ public class Join implements Command {
     }
 
     @Override
-    public void execute(Manager manager, SelectionKey key) throws UserNotLoggedException, UserAlreadyExistsException,
+    public String execute(Manager manager, SelectionKey key) throws UserNotLoggedException, UserAlreadyExistsException,
         GameAlreadyFullException, GameDoesNotExistsException {
+        if (manager == null || key == null) {
+            throw new IllegalArgumentException("Arguments cannot be null!");
+        }
+
         Object obj = key.attachment();
         if (obj == null) {
             throw new UserNotLoggedException("User not logged in cannot create game");
@@ -30,5 +34,6 @@ public class Join implements Command {
             throw new UserAlreadyExistsException("User already exists in game");
         }
         manager.joinGame(player, gameId, displayName);
+        return "Join";
     }
 }

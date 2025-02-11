@@ -25,14 +25,10 @@ public enum ValidCommand {
     private final String command;
     private final int maxArguments;
 
-    private ValidCommand(String command, int arguments) {
+    ValidCommand(String command, int arguments) {
         this.command = command;
         this.maxArguments = arguments;
     }
-
-//    public String getString() {
-//        return command;
-//    }
 
     public int getMaxArguments() {
         return maxArguments;

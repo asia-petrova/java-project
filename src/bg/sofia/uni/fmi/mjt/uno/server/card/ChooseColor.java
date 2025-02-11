@@ -12,12 +12,18 @@ public class ChooseColor implements Card {
 
     @Override
     public boolean canPlay(Card card, Color currentColor) {
+        if (card == null || currentColor == null) {
+            throw new IllegalArgumentException("Incorrect arguments!");
+        }
         return true;
     }
 
     @Override
     public Consumer<Game> play() {
         return game -> {
+            if (game == null) {
+                throw new NullPointerException("Game is null!");
+            }
             game.putInDeck(this);
         };
     }

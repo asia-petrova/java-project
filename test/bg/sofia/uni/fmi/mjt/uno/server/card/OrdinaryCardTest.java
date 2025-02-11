@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -53,6 +54,29 @@ public class OrdinaryCardTest {
 
         verify(game, times(1)).setCurrentColor(Color.YELLOW);
         verify(game, times(1)).putInDeck(card);
+    }
+
+    @Test
+    public void testPlayThrows() {
+        assertThrows(NullPointerException.class, () -> card.play().accept(null),
+            "Function should trow with null game");
+    }
+    @Test
+    public void testCanPlayThrowFirsArgument() {
+        assertThrows(IllegalArgumentException.class, ()->card.canPlay(null, Color.YELLOW),
+            "canPlay() should throw with null argument!");
+    }
+
+    @Test
+    public void testCanPlayThrowSecondArgument() {
+        assertThrows(IllegalArgumentException.class, ()->card.canPlay(card, null),
+            "canPlay() should throw with null argument!");
+    }
+
+    @Test
+    public void testCanPlayThrowNullArguments() {
+        assertThrows(IllegalArgumentException.class, ()->card.canPlay(null, null),
+            "canPlay() should throw with null argument!");
     }
 
 }

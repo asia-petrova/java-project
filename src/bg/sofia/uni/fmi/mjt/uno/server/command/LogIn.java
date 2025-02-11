@@ -17,9 +17,14 @@ public class LogIn implements Command {
     }
 
     @Override
-    public void execute(Manager manager, SelectionKey key) throws UserDoesNotExistException,
+    public String execute(Manager manager, SelectionKey key) throws UserDoesNotExistException,
         WrongPasswordException {
+        if (manager == null || key == null) {
+            throw new IllegalArgumentException("Arguments cannot be null!");
+        }
+
         Player loggedPlayer = manager.login(username, password, key);
         key.attach(loggedPlayer);
+        return loggedPlayer.toString();
     }
 }

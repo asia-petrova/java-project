@@ -1,6 +1,7 @@
 package bg.sofia.uni.fmi.mjt.uno.server.deck;
 
 import bg.sofia.uni.fmi.mjt.uno.server.card.Card;
+import bg.sofia.uni.fmi.mjt.uno.server.card.Color;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -8,6 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -23,6 +28,10 @@ public class DeckOfUnoTest {
         mockCard2 = mock(Card.class);
         mockCard3 = mock(Card.class);
 
+        when(mockCard1.toString()).thenReturn("mockCard1");
+        when(mockCard2.toString()).thenReturn("mockCard2");
+        when(mockCard3.toString()).thenReturn("mockCard3");
+
         List<Card> initialCards = new ArrayList<>(List.of(mockCard1, mockCard2, mockCard3));
         deck = new DeckOfUno(initialCards);
     }
@@ -30,7 +39,6 @@ public class DeckOfUnoTest {
     @Test
     void testGetFrontReturnsCard() {
         assertEquals(mockCard1, deck.getFront(), "It should return the right card");
-
     }
 
     @Test
@@ -47,6 +55,12 @@ public class DeckOfUnoTest {
     }
 
     @Test
+    void testPutBackThrows() {
+        assertThrows(IllegalArgumentException.class, () -> deck.putBack((Card) null),
+            "putBack(null) should throw IllegalArgumentException");
+    }
+
+    @Test
     void testPutBackMultiple() {
         List<Card> newCards = List.of(mock(Card.class), mock(Card.class));
         deck.putBack(newCards);
@@ -54,18 +68,32 @@ public class DeckOfUnoTest {
     }
 
     @Test
+    void testPutBackMultipleThrows() {
+        assertThrows(IllegalArgumentException.class, () -> deck.putBack((List<Card>) null),
+            "putBack(null) should throw IllegalArgumentException");
+    }
+
+    @Test
     void testShowPlayedCard() {
         assertEquals(mockCard3, deck.showPlayedCard(), "showPlayedCard() should return the right card");
     }
 
+    @Test
+    void testShowCardsOneCard() {
+        assertEquals( "mockCard3 ", deck.showCards(), "showCards() should return mockCard3");
+    }
 
     @Test
-    void testShowCards() {
-        when(mockCard1.toString()).thenReturn("Card1");
-        when(mockCard2.toString()).thenReturn("Card2");
-        when(mockCard3.toString()).thenReturn("Card3");
+    void testShowCardsTwoCard() {
+        deck.putBack(mockCard1);
+        assertEquals( "mockCard3 mockCard1 ", deck.showCards(),"showCards() should return mockCard3 mockCard1");
+    }
 
-        assertEquals("Card1 Card2 Card3 ", deck.showCards(), "showCards() should return Card1 Card2 Card3");
+    @Test
+    void testShowCardsTreeCard() {
+        deck.putBack(mockCard1);
+        deck.putBack(mockCard2);
+        assertEquals(deck.showCards(), "mockCard3 mockCard1 mockCard2 ", "showCards() should return mockCard3 mockCard1 mockCard2");
     }
 
     @Test
@@ -103,6 +131,12 @@ public class DeckOfUnoTest {
     }
 
     @Test
+    void testGetCardsThrows() {
+         assertThrows(IllegalArgumentException.class, ()->deck.getCards(-1),
+             "getCards(-1) should throw IllegalArgumentException");
+    }
+
+    @Test
     void testPutHandOfPlayer() {
         Deck mockHand = mock(Deck.class);
         when(mockHand.getSize()).thenReturn(2);
@@ -113,4 +147,48 @@ public class DeckOfUnoTest {
         assertEquals(5, deck.getSize(), "After we put the get other deck the size should increase!");
         verify(mockHand, times(2)).getFront();
     }
+
+    @Test
+    void testPutHandOfPlayerNullThrows() {
+        assertThrows(IllegalArgumentException.class, ()-> deck.putHandOfPlayer(null),
+            "putHandOfPlayer(null) should throw IllegalArgumentException");
+    }
+
+    @Test
+    void testMatchThrowsCardNull() {
+        assertThrows(IllegalArgumentException.class, ()->deck.match(null, Color.RED),
+        "match should throw ith null argument!");
+    }
+
+    @Test
+    void testMatchThrowsColorNull() {
+        assertThrows(IllegalArgumentException.class, ()->deck.match(mockCard1, null),
+            "match should throw ith null argument!");
+    }
+
+    @Test
+    void testMatchThrowsBothNull() {
+        assertThrows(IllegalArgumentException.class, ()->deck.match(null, null),
+            "match should throw ith null argument!");
+    }
+
+    @Test
+    void testMatchTrue() {
+        when(mockCard2.canPlay(mockCard3, Color.RED)).thenReturn(true);
+        when(mockCard1.canPlay(mockCard3, Color.RED)).thenReturn(false);
+
+        Deck deck1 = new DeckOfUno(List.of(mockCard1, mockCard2));
+        assertTrue(deck1.match(mockCard3, Color.RED), "match should return true!");
+
+    }
+
+    @Test
+    void testMatchFalse() {
+        when(mockCard2.canPlay(mockCard3, Color.RED)).thenReturn(false);
+        when(mockCard1.canPlay(mockCard3, Color.RED)).thenReturn(false);
+
+        Deck deck1 = new DeckOfUno(List.of(mockCard1, mockCard2));
+        assertFalse(deck1.match(mockCard3, Color.RED), "match should return false!");
+    }
+
 }

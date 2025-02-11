@@ -38,6 +38,10 @@ public class UnoPlayer implements Player {
 
     @Override
     public Card play(int id, Card on, Color color) throws CanNotPlayThisCardException {
+        if (on == null || color == null) {
+            throw new NullPointerException("Can not play Card with null color");
+        }
+
         Card cardToPut = hand.getAt(id);
         if (cardToPut.canPlay(on, color)) {
             return cardToPut;
@@ -48,6 +52,9 @@ public class UnoPlayer implements Player {
 
     @Override
     public void draw(Card card) {
+        if (card == null) {
+            throw new NullPointerException("Can not draw null card");
+        }
         hand.putBack(card);
     }
 
@@ -62,12 +69,19 @@ public class UnoPlayer implements Player {
     }
 
     @Override
-    public void winGame() {
-        wonGames.add(currentGame);
+    public boolean winGame() {
+        if (hand.emptyDeck()) {
+            wonGames.add(currentGame);
+            return true;
+        }
+        return false;
     }
 
     @Override
     public void acceptFate(List<Card> cards) {
+        if (cards == null) {
+            throw new IllegalArgumentException("Can not accept null cards");
+        }
         hand.putBack(cards);
     }
 
@@ -120,6 +134,9 @@ public class UnoPlayer implements Player {
 
     @Override
     public void sendMessage(String message) throws IOException {
+        if (message == null) {
+            throw new NullPointerException("Can not send null message");
+        }
         SocketChannel channel = (SocketChannel) key.channel();
         ByteBuffer buffer = ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8));
         buffer.flip();
@@ -140,6 +157,11 @@ public class UnoPlayer implements Player {
     @Override
     public int getDeckSize() {
         return hand.getSize();
+    }
+
+    @Override
+    public boolean canDraw(Card topCard, Color color) {
+        return !hand.match(topCard, color);
     }
 
 }

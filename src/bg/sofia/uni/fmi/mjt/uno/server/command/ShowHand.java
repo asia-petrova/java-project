@@ -15,9 +15,13 @@ import java.nio.channels.SelectionKey;
 
 public class ShowHand implements Command {
     @Override
-    public void execute(Manager manager, SelectionKey key)
+    public String execute(Manager manager, SelectionKey key)
         throws UserAlreadyExistsException, UserDoesNotExistException, WrongPasswordException, UserNotLoggedException,
         IOException, GameAlreadyExistsException, GameAlreadyFullException, GameDoesNotExistsException {
+        if (manager == null || key == null) {
+            throw new IllegalArgumentException("Arguments cannot be null!");
+        }
+
         Object obj = key.attachment();
         if (obj == null) {
             throw new UserNotLoggedException("User not logged in cannot create game");
@@ -26,7 +30,6 @@ public class ShowHand implements Command {
         if (!player.inGame()) {
             throw new GameDoesNotExistsException("Player should be in game to have a hand to show");
         }
-        String message = player.showHand();
-        player.sendMessage(message);
+        return player.showHand();
     }
 }

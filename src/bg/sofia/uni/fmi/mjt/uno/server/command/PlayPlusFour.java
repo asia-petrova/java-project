@@ -4,6 +4,7 @@ import bg.sofia.uni.fmi.mjt.uno.server.exception.CanNotPlayThisCardException;
 import bg.sofia.uni.fmi.mjt.uno.server.exception.GameAlreadyExistsException;
 import bg.sofia.uni.fmi.mjt.uno.server.exception.GameAlreadyFullException;
 import bg.sofia.uni.fmi.mjt.uno.server.exception.GameDoesNotExistsException;
+import bg.sofia.uni.fmi.mjt.uno.server.exception.NotInGameException;
 import bg.sofia.uni.fmi.mjt.uno.server.exception.NotRightTurnOfPlayerException;
 import bg.sofia.uni.fmi.mjt.uno.server.exception.UserAlreadyExistsException;
 import bg.sofia.uni.fmi.mjt.uno.server.exception.UserDoesNotExistException;
@@ -22,10 +23,10 @@ public class PlayPlusFour implements Command {
     }
 
     @Override
-    public void execute(Manager manager, SelectionKey key)
+    public String execute(Manager manager, SelectionKey key)
         throws UserAlreadyExistsException, UserDoesNotExistException, WrongPasswordException, UserNotLoggedException,
         IOException, GameAlreadyExistsException, GameAlreadyFullException, GameDoesNotExistsException,
-        NotRightTurnOfPlayerException, CanNotPlayThisCardException {
-        command.execute(manager, key);
+        NotRightTurnOfPlayerException, CanNotPlayThisCardException, NotInGameException {
+        return command.execute(manager, key);
     }
 }

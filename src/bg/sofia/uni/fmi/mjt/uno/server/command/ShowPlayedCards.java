@@ -14,8 +14,12 @@ import java.nio.charset.StandardCharsets;
 public class ShowPlayedCards implements Command {
 
     @Override
-    public void execute(Manager manager, SelectionKey key)
+    public String execute(Manager manager, SelectionKey key)
         throws  UserNotLoggedException, IOException, GameDoesNotExistsException {
+        if (manager == null || key == null) {
+            throw new IllegalArgumentException("Arguments cannot be null!");
+        }
+
         Object obj = key.attachment();
         if (obj == null) {
             throw new UserNotLoggedException("User not logged in cannot create game");
@@ -24,11 +28,6 @@ public class ShowPlayedCards implements Command {
         if (!player.inGame()) {
             throw new GameDoesNotExistsException("Player should be in game to have a hand to show");
         }
-        String message = manager.showPlayedCards(player);
-        SocketChannel channel = (SocketChannel) key.channel();
-        ByteBuffer buffer = ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8));
-        buffer.flip();
-        channel.write(buffer);
-        buffer.clear();
+        return manager.showPlayedCards(player);
     }
 }

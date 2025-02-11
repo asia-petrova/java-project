@@ -12,13 +12,18 @@ import java.nio.channels.SelectionKey;
 public class Start implements Command {
 
     @Override
-    public void execute(Manager manager, SelectionKey key) throws UserNotLoggedException,
+    public String execute(Manager manager, SelectionKey key) throws UserNotLoggedException,
         IOException, GameDoesNotExistsException {
+        if (manager == null || key == null) {
+            throw new IllegalArgumentException("Arguments cannot be null!");
+        }
+
         Object obj = key.attachment();
         if (obj == null) {
             throw new UserNotLoggedException("User not logged in cannot create game");
         }
         Player player = (Player) obj;
         manager.startGame(player).setDeck(CreateDeck.createDeck());
+        return "Game started!";
     }
 }

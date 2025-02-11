@@ -8,23 +8,35 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class CreateGameCommandTest {
     @Test
     public void testJCreateGameCommandTwoParamTrue() {
-        assertTrue(new CreateGameCommand("--players=dsdds", "--game-id=jdjdj").checkString(),
-            "Should be correct for list game command!");
+        assertTrue(new CreateGameCommand("--players=12", "--game-id=jdjdj").checkString(),
+            "Should be correct for create game command!");
     }
     @Test
     public void testCreateGameCommandOneParamTrue() {
         assertTrue(new CreateGameCommand(null, "--game-id=jdjdj").checkString(),
-            "Should be correct for list game command!");
+            "Should be correct for create game command!");
     }
 
     @Test
     public void testJCreateGameCommandTwoParamFalse() {
         assertFalse(new CreateGameCommand("--playersdsdds", "--game-id=jdjdj").checkString(),
-            "Should be correct for list game command!");
+            "Should be incorrect for create game command!");
     }
+    @Test
+    public void testJCreateGameCommandGivenNotNumberFalse() {
+        assertFalse(new CreateGameCommand("--players=djdj", "--game-id=jdjdj").checkString(),
+            "Should be incorrect for create game command if is given not number!");
+    }
+
+    @Test
+    public void testJCreateGameCommandOnePlayerFalse() {
+        assertFalse(new CreateGameCommand("--players=1", "--game-id=jdjdj").checkString(),
+            "Should be incorrect for create game command if is given number < 2!");
+    }
+
     @Test
     public void testCreateGameCommandOneParamFalse() {
         assertFalse(new CreateGameCommand(null, "--gme-id=jdjdj").checkString(),
-            "Should be correct for list game command!");
+            "Should be incorrect for create game command!");
     }
 }

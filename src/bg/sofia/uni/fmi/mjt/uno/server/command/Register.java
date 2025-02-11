@@ -15,7 +15,11 @@ public class Register implements Command {
     }
 
     @Override
-    public void execute(Manager manager, SelectionKey key) throws UserAlreadyExistsException {
+    public String execute(Manager manager, SelectionKey key) throws UserAlreadyExistsException {
+        if (manager == null || key == null) {
+            throw new IllegalArgumentException("Arguments cannot be null!");
+        }
         manager.registerUser(username, password);
+        return "Register successful!";
     }
 }
