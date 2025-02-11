@@ -8,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
@@ -15,6 +16,7 @@ import java.util.Scanner;
 
 public class Client {
     private static final int SERVER_PORT = 5000;
+    private ByteBuffer buffer;
 
     public static void main(String[] args) {
         try (SocketChannel socketChannel = SocketChannel.open();
@@ -23,12 +25,12 @@ public class Client {
              Scanner scanner = new Scanner(System.in)) {
 
             socketChannel.connect(new InetSocketAddress("localhost", SERVER_PORT));
-
             System.out.println("Connected to the server.");
 
             while (true) {
                 System.out.print("Enter message: ");
-                String message = scanner.nextLine(); // read a line from the console
+                String message = scanner.nextLine();
+
                 try {
                     CheckCommand possibleCmd = CheckCommand.of(message);
                     if (!possibleCmd.checkString()) {
@@ -45,14 +47,24 @@ public class Client {
                 }
 
                 System.out.println("Sending message <" + message + "> to the server...");
+                writer.println(message); // Изпраща съобщение с нов ред
+                writer.flush(); // Гарантира, че съобщението е изпратено
 
-                writer.println(message);
+                // Четене на всички редове, докато не пристигне празен ред
+                StringBuilder reply = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (line.isEmpty()) { // Ако съобщението е приключило
+                        break;
+                    }
+                    reply.append(line).append("\n"); // Добавяме към резултата
+                }
 
-                String reply = reader.readLine(); // read the response from the server
-                System.out.println("The server replied <" + reply + ">");
+                System.out.println("The server replied:\n" + reply);
             }
         } catch (IOException e) {
             throw new RuntimeException("There is a problem with the network communication", e);
         }
+
     }
 }

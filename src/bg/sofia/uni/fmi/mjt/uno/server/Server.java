@@ -49,18 +49,12 @@ public class Server {
             selector = Selector.open();
             configureServerSocketChannel(serverSocketChannel, selector);
             this.buffer = ByteBuffer.allocate(BUFFER_SIZE);
-            while (runningFlag) {
-                try {
-                    int readyChannels = selector.select(1000);
-                    if (readyChannels == 0) {
-                        continue;
-                    }
-                    Iterator<SelectionKey> keyIterator = selector.selectedKeys().iterator();
-                    iterate(keyIterator);
-                } catch (IOException e) {
-                    System.out.println("Error occurred while processing client request: " + e.getMessage());
-                }
+            try {
+                iterate();
+            } catch (IOException e) {
+                System.out.println("Error occurred while processing client request: " + e.getMessage());
             }
+
         } catch (IOException e) {
             throw new UncheckedIOException("failed to start server", e);
         }
@@ -93,13 +87,12 @@ public class Server {
         accept.register(selector, SelectionKey.OP_READ);
     }
 
-    public String read(SelectionKey key) throws IOException {
-        SocketChannel clientChannel = (SocketChannel) key.channel();
+    public String read(SocketChannel clientChannel) throws IOException {
         buffer.clear();
         int readBytes = clientChannel.read(buffer);
         if (readBytes < 0) {
             System.out.println("Client has closed the connection");
-            key.cancel();
+            //key.cancel();
             clientChannel.close();
             return null;
         }
@@ -110,24 +103,34 @@ public class Server {
         return new String(clientInputBytes, StandardCharsets.UTF_8);
     }
 
-    public void iterate(Iterator<SelectionKey> keyIterator) throws IOException {
-        while (keyIterator.hasNext()) {
-            SelectionKey key = keyIterator.next();
-            if (key.isReadable()) {
-                SocketChannel sc = (SocketChannel) key.channel();
-                String input = read(key);
-                if (input == null) {
-                    continue;
-                }
-                if (input.equals(STOP)) {
-                    runningFlag = false;
-                    return;
-                }
-                executeCommand(key, input, sc);
-            } else if (key.isAcceptable()) {
-                accept(selector, key);
+    public void iterate() throws IOException {
+        while (runningFlag) {
+            int readyChannels = selector.select(1000);
+            if (readyChannels == 0) {
+                System.out.println("No more clients connected");
+                continue;
             }
-            keyIterator.remove();
+            Iterator<SelectionKey> keyIterator = selector.selectedKeys().iterator();
+            while (keyIterator.hasNext()) {
+                SelectionKey key = keyIterator.next();
+                if (key.isReadable()) {
+                    SocketChannel sc = (SocketChannel) key.channel();
+                    String input = read(sc);
+                    if (input == null) {
+                        continue;
+                    }
+                    if (input.equals(STOP)) {
+                        runningFlag = false;
+                        return;
+                    }
+                    executeCommand(key, input, sc);
+                } else if (key.isAcceptable()) {
+                    accept(selector, key);
+                } else if (key.isWritable()) {
+                    System.out.println("Key is writable, sending data...");
+                }
+                keyIterator.remove();
+            }
         }
     }
 
@@ -137,25 +140,32 @@ public class Server {
             logger.logMessage(new Date() + ": " + command);
             messageForClient = Command.of(command).execute(gamesManager, key);
         } catch (IOException e) {
-            logger.logProblem(new Date() + ": " + Arrays.toString(e.getStackTrace()));
+            logger.logProblem(new Date() + ": " + "\n\t>>" + Arrays.toString(e.getStackTrace()));
             messageForClient = "There is a problem with the sever! Please try again later!";
         } catch (Exception e) {
-            logger.logProblem(new Date() + ": " + Arrays.toString(e.getStackTrace()));
+            logger.logProblem(new Date() + ": " + e.getMessage() + "\n\t>>" + Arrays.toString(e.getStackTrace()));
             messageForClient = e.getMessage();
         }
 
         try {
             sendMessage(messageForClient, key, sc);
+            System.out.println(messageForClient);
         } catch (IOException e) {
             logger.logProblem(new Date() + ": " + Arrays.toString(e.getStackTrace()));
         }
     }
 
     private void sendMessage(String message, SelectionKey key, SocketChannel sc) throws IOException {
-        buffer.clear();
-        buffer.put(message.getBytes());
-        buffer.flip();
-        sc.write(buffer);
+        message += "\n";
+        ByteBuffer buffer = ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)); // Автоматично създава буфер с данните
+
+        while (buffer.hasRemaining()) { // Проверява дали има още данни за изпращане
+            int bytesWritten = sc.write(buffer);
+            System.out.println("Bytes written: " + bytesWritten);
+        }
+
+        System.out.println("Message fully sent: " + message);
     }
+
 
 }
