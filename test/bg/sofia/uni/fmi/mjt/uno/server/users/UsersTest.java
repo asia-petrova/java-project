@@ -1,6 +1,6 @@
 package bg.sofia.uni.fmi.mjt.uno.server.users;
 
-import bg.sofia.uni.fmi.mjt.uno.server.exception.ProblemWithFileUsersException;
+import bg.sofia.uni.fmi.mjt.uno.server.exception.ProblemWithFileException;
 import bg.sofia.uni.fmi.mjt.uno.server.exception.UserAlreadyExistsException;
 import bg.sofia.uni.fmi.mjt.uno.server.exception.UserDoesNotExistException;
 import bg.sofia.uni.fmi.mjt.uno.server.exception.WrongPasswordException;
@@ -66,7 +66,7 @@ public class UsersTest {
     }
 
     @Test
-    void testSaveUsersInFile() throws IOException, ProblemWithFileUsersException {
+    void testSaveUsersInFile() throws IOException, ProblemWithFileException {
         String fileName = "users.json";
         File file = new File(fileName);
 

@@ -13,6 +13,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -34,6 +35,12 @@ public class UnoPlayerTest {
 
         player = new UnoPlayer("Player1", key);
         player.setHand(mockHand);
+    }
+
+    @Test
+    void testPlayNullArgumentsThrows() {
+        assertThrows(NullPointerException.class, () -> player.play(1,null, null),
+            "Cannot play with null card or color!");
     }
 
     @Test
@@ -67,6 +74,12 @@ public class UnoPlayerTest {
     }
 
     @Test
+    void testDrawNullCardThrows() {
+        assertThrows(NullPointerException.class, () -> player.draw(null),
+            "Cannot draw null card!");
+    }
+
+    @Test
     void testDraw() {
         player.draw(mockCard);
 
@@ -79,6 +92,26 @@ public class UnoPlayerTest {
 
         assertEquals("Card1 Card2", player.showHand(), "The card should be equal!");
         verify(mockHand).showCards();
+    }
+
+    @Test
+    void testWinGame() {
+        Deck deck = mock(Deck.class);
+        when(deck.emptyDeck()).thenReturn(true);
+        player.setHand(deck);
+        assertTrue(player.winGame(), "With empty hand player should win!");
+    }
+
+    @Test
+    void testAcceptFateNullArgumentsThrows() {
+        assertThrows(IllegalArgumentException.class, ()->player.acceptFate(null),
+            "Cannot accept null arguments!");
+    }
+
+    @Test
+    void sendMessageThrowsNullArgument() {
+        assertThrows(NullPointerException.class, ()->player.sendMessage(null), "" +
+            "Null message cannot be sent!");
     }
 
     @Test
