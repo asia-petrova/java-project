@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 public class OrdinaryCard implements Card {
     private Color color;
     private int number;
+    private static final String SEPARATOR = "_";
 
     public OrdinaryCard(Color color, int number) {
         this.color = color;
@@ -15,7 +16,7 @@ public class OrdinaryCard implements Card {
 
     @Override
     public String getDescription() {
-        return "<" + number + "_" + color.toString().toLowerCase() + ">";
+        return "<" + number + SEPARATOR + color.toString().toLowerCase() + ">";
     }
 
     @Override
@@ -25,7 +26,7 @@ public class OrdinaryCard implements Card {
         }
         if (card instanceof OrdinaryCard) {
             int number = Integer.parseInt(card.getDescription()
-                .replaceAll("[<|>]", "").split(" ")[0]);
+                .replaceAll("[<|>]", "").split(SEPARATOR)[0]);
             return number == this.number || currentColor == this.color;
         }
         return currentColor == this.color && incrementCount == 1;
