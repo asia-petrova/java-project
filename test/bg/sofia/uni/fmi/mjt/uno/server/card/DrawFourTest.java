@@ -31,25 +31,25 @@ public class DrawFourTest {
 
     @Test
     public void testCanPlayThrowFirsArgument() {
-        assertThrows(IllegalArgumentException.class, ()->card.canPlay(null, Color.YELLOW),
+        assertThrows(IllegalArgumentException.class, ()->card.canPlay(null, Color.YELLOW, 1),
             "canPlay() should throw with null argument!");
     }
 
     @Test
     public void testCanPlayThrowSecondArgument() {
-        assertThrows(IllegalArgumentException.class, ()->card.canPlay(card, null),
+        assertThrows(IllegalArgumentException.class, ()->card.canPlay(card, null, 1),
             "canPlay() should throw with null argument!");
     }
 
     @Test
     public void testCanPlayThrowNullArguments() {
-        assertThrows(IllegalArgumentException.class, ()->card.canPlay(null, null),
+        assertThrows(IllegalArgumentException.class, ()->card.canPlay(null, null, 1),
             "canPlay() should throw with null argument!");
     }
 
     @Test
     public void testGetDescription() {
-        assertEquals("+4", card.getDescription(),
+        assertEquals("<+4>", card.getDescription(),
             "Description of the card should be: +4!");
     }
 
@@ -61,7 +61,7 @@ public class DrawFourTest {
 
     @Test
     public void testCanPlay() {
-        assertTrue(card.canPlay(card, Color.YELLOW),
+        assertTrue(card.canPlay(card, Color.YELLOW, 1),
             "With arguments different from null should always return true!");
     }
 }

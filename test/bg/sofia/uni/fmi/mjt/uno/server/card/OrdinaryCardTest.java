@@ -27,25 +27,25 @@ public class OrdinaryCardTest {
     @Test
     public void testCanPlaySameColorTrue() {
         Card on = mock();
-        assertTrue(card.canPlay(on, Color.YELLOW), "Should return true when color is YELLOW!");
+        assertTrue(card.canPlay(on, Color.YELLOW, 1), "Should return true when color is YELLOW!");
     }
 
     @Test
     public void testCanPlayDifferentColorFalse() {
         Card on = mock();
-        assertFalse(card.canPlay(on, Color.BLUE), "Should return false when color is BLUE!");
+        assertFalse(card.canPlay(on, Color.BLUE,1), "Should return false when color is BLUE!");
     }
 
     @Test
     public void testCanPlayDifferentColorSameNumberTrue() {
         Card on = new OrdinaryCard(Color.BLUE, 1);
-        assertTrue(card.canPlay(on, Color.BLUE),
+        assertTrue(card.canPlay(on, Color.BLUE, 1),
             "Should return true when the number is the same!");
     }
 
     @Test
     public void testGetDescription() {
-        assertEquals("yellow 1", card.getDescription(), "The description should be: yellow 1");
+        assertEquals("<1_yellow>", card.getDescription(), "The description should be: yellow 1");
     }
 
     @Test
@@ -63,19 +63,19 @@ public class OrdinaryCardTest {
     }
     @Test
     public void testCanPlayThrowFirsArgument() {
-        assertThrows(IllegalArgumentException.class, ()->card.canPlay(null, Color.YELLOW),
+        assertThrows(IllegalArgumentException.class, ()->card.canPlay(null, Color.YELLOW,1),
             "canPlay() should throw with null argument!");
     }
 
     @Test
     public void testCanPlayThrowSecondArgument() {
-        assertThrows(IllegalArgumentException.class, ()->card.canPlay(card, null),
+        assertThrows(IllegalArgumentException.class, ()->card.canPlay(card, null,1),
             "canPlay() should throw with null argument!");
     }
 
     @Test
     public void testCanPlayThrowNullArguments() {
-        assertThrows(IllegalArgumentException.class, ()->card.canPlay(null, null),
+        assertThrows(IllegalArgumentException.class, ()->card.canPlay(null, null,1),
             "canPlay() should throw with null argument!");
     }
 

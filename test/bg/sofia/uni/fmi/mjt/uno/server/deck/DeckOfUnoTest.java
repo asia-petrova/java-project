@@ -79,24 +79,6 @@ public class DeckOfUnoTest {
     }
 
     @Test
-    void testShowCardsOneCard() {
-        assertEquals( "mockCard3 ", deck.showCards(), "showCards() should return mockCard3");
-    }
-
-    @Test
-    void testShowCardsTwoCard() {
-        deck.putBack(mockCard1);
-        assertEquals( "mockCard3 mockCard1 ", deck.showCards(),"showCards() should return mockCard3 mockCard1");
-    }
-
-    @Test
-    void testShowCardsTreeCard() {
-        deck.putBack(mockCard1);
-        deck.putBack(mockCard2);
-        assertEquals(deck.showCards(), "mockCard3 mockCard1 mockCard2 ", "showCards() should return mockCard3 mockCard1 mockCard2");
-    }
-
-    @Test
     void testGetAtReturnsCard() {
         assertEquals(mockCard2, deck.getAt(1), "getAt() should return the right card");
     }
@@ -138,7 +120,7 @@ public class DeckOfUnoTest {
 
     @Test
     void testPutHandOfPlayer() {
-        Deck mockHand = mock(Deck.class);
+        Deck mockHand = mock();
         when(mockHand.getSize()).thenReturn(2);
         when(mockHand.getFront()).thenReturn(mockCard1, mockCard2);
 
@@ -156,39 +138,39 @@ public class DeckOfUnoTest {
 
     @Test
     void testMatchThrowsCardNull() {
-        assertThrows(IllegalArgumentException.class, ()->deck.match(null, Color.RED),
+        assertThrows(IllegalArgumentException.class, ()->deck.match(null, Color.RED, 1),
         "match should throw ith null argument!");
     }
 
     @Test
     void testMatchThrowsColorNull() {
-        assertThrows(IllegalArgumentException.class, ()->deck.match(mockCard1, null),
+        assertThrows(IllegalArgumentException.class, ()->deck.match(mockCard1, null, 1),
             "match should throw ith null argument!");
     }
 
     @Test
     void testMatchThrowsBothNull() {
-        assertThrows(IllegalArgumentException.class, ()->deck.match(null, null),
+        assertThrows(IllegalArgumentException.class, ()->deck.match(null, null, 1),
             "match should throw ith null argument!");
     }
 
     @Test
     void testMatchTrue() {
-        when(mockCard2.canPlay(mockCard3, Color.RED)).thenReturn(true);
-        when(mockCard1.canPlay(mockCard3, Color.RED)).thenReturn(false);
+        when(mockCard2.canPlay(mockCard3, Color.RED, 1)).thenReturn(true);
+        when(mockCard1.canPlay(mockCard3, Color.RED, 1)).thenReturn(false);
 
         Deck deck1 = new DeckOfUno(List.of(mockCard1, mockCard2));
-        assertTrue(deck1.match(mockCard3, Color.RED), "match should return true!");
+        assertTrue(deck1.match(mockCard3, Color.RED, 1), "match should return true!");
 
     }
 
     @Test
     void testMatchFalse() {
-        when(mockCard2.canPlay(mockCard3, Color.RED)).thenReturn(false);
-        when(mockCard1.canPlay(mockCard3, Color.RED)).thenReturn(false);
+        when(mockCard2.canPlay(mockCard3, Color.RED, 1)).thenReturn(false);
+        when(mockCard1.canPlay(mockCard3, Color.RED, 1)).thenReturn(false);
 
         Deck deck1 = new DeckOfUno(List.of(mockCard1, mockCard2));
-        assertFalse(deck1.match(mockCard3, Color.RED), "match should return false!");
+        assertFalse(deck1.match(mockCard3, Color.RED, 1), "match should return false!");
     }
 
 }

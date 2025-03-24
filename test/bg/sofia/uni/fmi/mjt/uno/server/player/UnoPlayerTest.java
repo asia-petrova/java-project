@@ -33,13 +33,13 @@ public class UnoPlayerTest {
         mockOnCard = mock(Card.class);
         key = mock();
 
-        player = new UnoPlayer("Player1", key);
+        player = new UnoPlayer("Player1");
         player.setHand(mockHand);
     }
 
     @Test
     void testPlayNullArgumentsThrows() {
-        assertThrows(NullPointerException.class, () -> player.play(1,null, null),
+        assertThrows(NullPointerException.class, () -> player.play(1,null, null, 1),
             "Cannot play with null card or color!");
     }
 
@@ -48,13 +48,13 @@ public class UnoPlayerTest {
         int cardIndex = 0;
 
         when(mockHand.getAt(cardIndex)).thenReturn(mockCard);
-        when(mockCard.canPlay(mockOnCard, Color.RED)).thenReturn(true);
+        when(mockCard.canPlay(mockOnCard, Color.RED, 1)).thenReturn(true);
 
-        Card playedCard = player.play(cardIndex, mockOnCard, Color.RED);
+        Card playedCard = player.play(cardIndex, mockOnCard, Color.RED, 1);
 
         assertEquals(mockCard, playedCard, "The card must be the first in the hand!");
         verify(mockHand).getAt(cardIndex);
-        verify(mockCard).canPlay(mockOnCard, Color.RED);
+        verify(mockCard).canPlay(mockOnCard, Color.RED, 1);
         verify(mockHand, never()).putBack(mockCard);
     }
 
@@ -63,10 +63,10 @@ public class UnoPlayerTest {
         int cardIndex = 0;
 
         when(mockHand.getAt(cardIndex)).thenReturn(mockCard);
-        when(mockCard.canPlay(mockOnCard, Color.BLUE)).thenReturn(false);
+        when(mockCard.canPlay(mockOnCard, Color.BLUE, 1)).thenReturn(false);
         assertThrows(
             CanNotPlayThisCardException.class,
-            () -> player.play(cardIndex, mockOnCard, Color.BLUE),
+            () -> player.play(cardIndex, mockOnCard, Color.BLUE, 1),
             "It should throw when the card can't be played!"
         );
 
@@ -85,14 +85,7 @@ public class UnoPlayerTest {
 
         verify(mockHand).putBack(mockCard);
     }
-
-    @Test
-    void testShowHand() {
-        when(mockHand.showCards()).thenReturn("Card1 Card2");
-
-        assertEquals("Card1 Card2", player.showHand(), "The card should be equal!");
-        verify(mockHand).showCards();
-    }
+    
 
     @Test
     void testWinGame() {
@@ -109,12 +102,6 @@ public class UnoPlayerTest {
     }
 
     @Test
-    void sendMessageThrowsNullArgument() {
-        assertThrows(NullPointerException.class, ()->player.sendMessage(null), "" +
-            "Null message cannot be sent!");
-    }
-
-    @Test
     void testAcceptFate() {
         List<Card> mockCards = List.of(mock(Card.class), mock(Card.class));
         player.acceptFate(mockCards);
@@ -123,13 +110,13 @@ public class UnoPlayerTest {
 
     @Test
     void testEqualsTrue() {
-        UnoPlayer samePlayer = new UnoPlayer( "Player1", key);
+        UnoPlayer samePlayer = new UnoPlayer( "Player1");
         assertEquals(player, samePlayer, "Equals should return false when it is the same player");
     }
 
     @Test
     void testEqualsDifferentPlayer() {
-        UnoPlayer differentPlayer = new UnoPlayer("Player2", key);
+        UnoPlayer differentPlayer = new UnoPlayer("Player2");
         assertNotEquals(player, differentPlayer, "Equals should return false when it is a different player");
     }
 

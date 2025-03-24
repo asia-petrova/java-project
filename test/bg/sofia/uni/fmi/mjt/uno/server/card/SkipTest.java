@@ -26,22 +26,22 @@ public class SkipTest {
 
     @Test
     public void testCanPlaySameCardTrue() {
-        assertTrue(card.canPlay(new Skip(Color.RED), Color.RED), "On same card can be put same!");
+        assertTrue(card.canPlay(new Skip(Color.RED), Color.RED, 1), "On same card can be put same!");
     }
 
     @Test
     public void testCanPlaySameColorTrue() {
-        assertTrue(card.canPlay(on, Color.YELLOW), "On same color can be put same!");
+        assertTrue(card.canPlay(on, Color.YELLOW,1), "On same color can be put same!");
     }
 
     @Test
     public void testCanPlayDifferentColorTFalse() {
-        assertFalse(card.canPlay(on, Color.RED), "On different color cannot be be put skip!");
+        assertFalse(card.canPlay(on, Color.RED, 1), "On different color cannot be be put skip!");
     }
 
     @Test
     public void testGetDescription() {
-        assertEquals("Skip yellow", card.getDescription(),
+        assertEquals("<Skip_yellow>", card.getDescription(),
             "Description of the card should be: Skip yellow!");
     }
 
@@ -61,19 +61,19 @@ public class SkipTest {
     }
     @Test
     public void testCanPlayThrowFirsArgument() {
-        assertThrows(IllegalArgumentException.class, ()->card.canPlay(null, Color.YELLOW),
+        assertThrows(IllegalArgumentException.class, ()->card.canPlay(null, Color.YELLOW, 1),
             "canPlay() should throw with null argument!");
     }
 
     @Test
     public void testCanPlayThrowSecondArgument() {
-        assertThrows(IllegalArgumentException.class, ()->card.canPlay(card, null),
+        assertThrows(IllegalArgumentException.class, ()->card.canPlay(card, null, 1),
             "canPlay() should throw with null argument!");
     }
 
     @Test
     public void testCanPlayThrowNullArguments() {
-        assertThrows(IllegalArgumentException.class, ()->card.canPlay(null, null),
+        assertThrows(IllegalArgumentException.class, ()->card.canPlay(null, null, 1),
             "canPlay() should throw with null argument!");
     }
 

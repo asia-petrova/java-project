@@ -12,6 +12,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -65,8 +66,29 @@ public class UsersTest {
             "login() with non-existent user should throw!");
     }
 
+    @Disabled
+    void testLoginWithLoggedInUser() throws Exception {
+        users.registerUser("testUser", 123);
+        users.login("testUser", 123, key);
+        assertThrows(UserAlreadyExistsException.class, () -> users.login("testUser", 123, key),
+            "Logged user should not be able to log in");
+    }
+
     @Test
-    void testSaveUsersInFile() throws IOException, ProblemWithFileException {
+    void testLogoutWithNonExistentUser() {
+        assertThrows(UserDoesNotExistException.class, () -> users.logout("nonExistent"),
+            "logout() with non-existent user should throw!");
+    }
+
+    @Disabled
+    void testLogoutWithNotLoggedInUser() throws Exception {
+        users.registerUser("testUser", 123);
+        assertThrows(UserAlreadyExistsException.class, () -> users.logout("testUser"),
+            "Logged user should not be able to log out");
+    }
+
+    @Test
+    void testSaveUsersInFile() throws ProblemWithFileException {
         String fileName = "users.json";
         File file = new File(fileName);
 
