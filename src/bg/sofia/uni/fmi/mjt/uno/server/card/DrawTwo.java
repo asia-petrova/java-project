@@ -14,11 +14,11 @@ public class DrawTwo implements Card {
 
     @Override
     public String getDescription() {
-        return "+2 " + color.toString().toLowerCase();
+        return "<+2_" + color.toString().toLowerCase() + ">";
     }
 
     @Override
-    public boolean canPlay(Card card, Color currentColor) {
+    public boolean canPlay(Card card, Color currentColor, int incrementCount) {
         if (card == null || currentColor == null) {
             throw new IllegalArgumentException("Incorrect arguments!");
         }

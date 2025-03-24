@@ -9,11 +9,11 @@ public class DrawFour implements Card {
 
     @Override
     public String getDescription() {
-        return "+4";
+        return "<+4>";
     }
 
     @Override
-    public boolean canPlay(Card card, Color currentColor) {
+    public boolean canPlay(Card card, Color currentColor, int incrementCount) {
         if (card == null || currentColor == null) {
             throw new IllegalArgumentException("Incorrect arguments!");
         }

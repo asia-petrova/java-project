@@ -4,4 +4,8 @@ public class CanNotPlayThisCardException extends Exception {
     public CanNotPlayThisCardException(String message) {
         super(message);
     }
+
+    public CanNotPlayThisCardException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

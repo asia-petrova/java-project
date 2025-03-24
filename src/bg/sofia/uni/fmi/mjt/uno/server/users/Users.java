@@ -44,11 +44,17 @@ public class Users {
         if (password != users.get(username)) {
             throw new WrongPasswordException("Wrong password.");
         }
-        return new UnoPlayer(username, key);
+        return new UnoPlayer(username);
+    }
+
+    public void logout(String username) throws UserDoesNotExistException {
+        if (!users.containsKey(username)) {
+            throw new UserDoesNotExistException("The given username: " + username + " does not exist.");
+        }
     }
 
     public void saveUsersInFile() throws ProblemWithFileException {
-        try (FileWriter file = new FileWriter(FILE_NAME)) {
+        try (FileWriter file = new FileWriter(FILE_NAME, true)) {
             Gson json = new Gson();
             file.write(json.toJson(users));
         } catch (IOException e) {

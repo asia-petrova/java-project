@@ -13,15 +13,15 @@ public class ChangeDirection implements Card {
 
     @Override
     public String getDescription() {
-        return "Change Direction " + color.toString().toLowerCase();
+        return "<Change-Direction_" + color.toString().toLowerCase() + ">";
     }
 
     @Override
-    public boolean canPlay(Card card, Color currentColor) {
+    public boolean canPlay(Card card, Color currentColor, int incrementCount) {
         if (card == null || currentColor == null) {
             throw new IllegalArgumentException("Incorrect arguments!");
         }
-        return color == currentColor || card instanceof ChangeDirection;
+        return (color == currentColor || card instanceof ChangeDirection) && incrementCount == 1;
     }
 
     @Override
@@ -33,6 +33,7 @@ public class ChangeDirection implements Card {
             game.changeDirection();
             game.setCurrentColor(color);
             game.putInDeck(this);
+
         };
     }
 

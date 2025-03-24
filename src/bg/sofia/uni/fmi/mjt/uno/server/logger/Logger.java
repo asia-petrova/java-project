@@ -6,19 +6,14 @@ import java.io.PrintWriter;
 
 public class Logger {
     private static final String LOG_FILE = "logs.txt";
-    private static final String INPUT_FILE = "input.txt";
-
-    public void logMessage(String message) {
-        log(message, INPUT_FILE);
-    }
 
     public void logProblem(String message) {
         log(message, LOG_FILE);
     }
 
     private void log(String message, String file) {
-        try (PrintWriter printWriter = new PrintWriter(new FileWriter(file))) {
-            printWriter.println(">" + message);
+        try (PrintWriter printWriter = new PrintWriter(new FileWriter(file, true))) {
+            printWriter.write("\n>" + message);
             printWriter.flush();
         } catch (IOException e) {
             System.out.println("Unable to perform log!");

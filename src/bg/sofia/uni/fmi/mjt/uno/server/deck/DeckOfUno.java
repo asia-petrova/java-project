@@ -55,10 +55,10 @@ public class DeckOfUno implements Deck {
     }
 
     @Override
-    public String showCards() {
+    public String showPlayedCards() {
         String result = "";
-        for (int i = 0; i < counter; i++) {
-            result = cards.get(getSize() - 1 - i) + " " + result;
+        for (int i = 1; i < counter; i++) {
+            result = cards.get(getSize() - 1 - i).getDescription() + " " + result;
         }
         return result;
     }
@@ -106,13 +106,13 @@ public class DeckOfUno implements Deck {
     }
 
     @Override
-    public boolean match(Card card, Color color) {
+    public boolean match(Card card, Color color, int incrementCount) {
         if (card == null || color == null) {
             throw new IllegalArgumentException("Cannot match null color or card!");
         }
 
         for (Card c : cards) {
-            if (c.canPlay(card, color)) {
+            if (c.canPlay(card, color, incrementCount)) {
                 return true;
             }
         }
@@ -122,5 +122,18 @@ public class DeckOfUno implements Deck {
     @Override
     public boolean emptyDeck() {
         return cards.isEmpty();
+    }
+
+    @Override
+    public String showAllCards() {
+        if (cards.isEmpty()) {
+            return "No hand!";
+        }
+
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < cards.size(); ++i) {
+            result.append(i).append(":").append(cards.get(i).getDescription()).append(" ");
+        }
+        return result.toString();
     }
 }

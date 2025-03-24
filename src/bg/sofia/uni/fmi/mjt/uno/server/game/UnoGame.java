@@ -6,7 +6,6 @@ import bg.sofia.uni.fmi.mjt.uno.server.deck.Deck;
 import bg.sofia.uni.fmi.mjt.uno.server.deck.DeckOfUno;
 import bg.sofia.uni.fmi.mjt.uno.server.exception.CanNotPlayThisCardException;
 import bg.sofia.uni.fmi.mjt.uno.server.exception.GameAlreadyFullException;
-import bg.sofia.uni.fmi.mjt.uno.server.exception.NotInGameException;
 import bg.sofia.uni.fmi.mjt.uno.server.exception.NotRightTurnOfPlayerException;
 import bg.sofia.uni.fmi.mjt.uno.server.game.playersturn.PlayersTurn;
 import bg.sofia.uni.fmi.mjt.uno.server.player.Player;
@@ -23,7 +22,7 @@ public class UnoGame implements Game {
     private PlayersTurn turn;
     Player creator;
     private Deck deck;
-    private Color currentColor;
+    private Color currentColor = null;
     private List<Player> players;
 
     public UnoGame(String gameId, Player creator, int countOfPlayers) {
@@ -34,7 +33,7 @@ public class UnoGame implements Game {
     }
 
     @Override
-    public void setDeck(Deck deck) throws IOException {
+    public void setDeck(Deck deck) {
         if (deck == null) {
             throw new IllegalArgumentException("deck cannot be null");
         }
@@ -43,7 +42,11 @@ public class UnoGame implements Game {
         for (Player player : players) {
             player.setHand(new DeckOfUno(deck.getCards(FIRST_DRAW)));
         }
-        sendToAll(messageToAll());
+        deck.getFront().play().accept(this);
+        if (currentColor == null) {
+            currentColor = Color.RED;
+        }
+        System.out.println(currentColor.toString());
     }
 
     @Override
@@ -63,7 +66,7 @@ public class UnoGame implements Game {
         if (amount < 0) {
             throw new IllegalArgumentException("amount cannot be negative");
         }
-        drawCounter += amount;
+        drawCounter = drawCounter == 1 ? amount : drawCounter + amount;
     }
 
     @Override
@@ -99,22 +102,22 @@ public class UnoGame implements Game {
 
     @Override
     public void executePlayersCard(int index, Player player) throws NotRightTurnOfPlayerException,
-        CanNotPlayThisCardException, IOException, NotInGameException {
+        CanNotPlayThisCardException {
         if (index < 0 || player == null) {
             throw new IllegalArgumentException("index cannot be negative and player cannot be null");
         }
 
         onTurn(player);
 
-        players.get(turn.current()).play(index, this.lastPlayedCard(), this.currentColor).play().accept(this);
+        players.get(turn.current()).play(index, this.lastPlayedCard(), this.currentColor, this.drawCounter)
+            .play().accept(this);
+
         if (player.winGame()) {
             leaveGame(player);
             gameHistory.addTop3Player(player.getDisplayName());
+            turn.decrease();
         }
-        turn.decrease();
         turn.next();
-
-        sendToAll(messageToAll());
     }
 
     @Override
@@ -161,26 +164,28 @@ public class UnoGame implements Game {
         onTurn(player);
         players.get(turn.current()).acceptFate(getFromDeck());
         turn.next();
-        sendToAll(messageToAll());
     }
 
     @Override
     public String getLastPlayedCards() {
-        return deck.showCards();
+        return deck.showPlayedCards();
     }
 
     @Override
-    public void leaveGame(Player player) throws NotInGameException {
+    public void leaveGame(Player player) {
         if (player == null) {
             throw new IllegalArgumentException("player cannot be null");
         }
         players.remove(player);
-        deck.putBack(player.leaveGame());
-        turn.decrease();
+        if (deck != null) {
+            deck.putBack(player.leaveGame());
+            turn.decrease();
+        }
+
     }
 
     @Override
-    public void spectate(Player player) throws CanNotPlayThisCardException, IOException {
+    public String spectate(Player player) throws CanNotPlayThisCardException {
         if (player == null) {
             throw new IllegalArgumentException("player cannot be null");
         }
@@ -191,7 +196,7 @@ public class UnoGame implements Game {
         for (Player inGame : players) {
             result += inGame.getDisplayName() + ": " + inGame.showHand() + "\n";
         }
-        player.sendMessage(result);
+        return result;
     }
 
     @Override
@@ -201,7 +206,7 @@ public class UnoGame implements Game {
             throw new IllegalArgumentException("player cannot be null");
         }
         onTurn(player);
-        if (!players.get(turn.current()).canDraw(lastPlayedCard(), getCurrentColor())) {
+        if (!players.get(turn.current()).canDraw(lastPlayedCard(), getCurrentColor(), this.drawCounter)) {
             throw new CanNotPlayThisCardException("Player has options to put a card! Please choose card!");
         }
         players.get(turn.current()).acceptFate(getFromDeck());
@@ -231,22 +236,21 @@ public class UnoGame implements Game {
         return null;
     }
 
-    private void sendToAll(String message) throws IOException {
-        for (Player player : players) {
-            player.sendMessage(message);
-        }
-    }
-
     @Override
     public boolean start() {
         return players.size() == gameHistory.getMaxNumberOfPlayers();
     }
 
-    private String messageToAll() {
-        return players.get(turn.current()).getDisplayName() + " is on turn\n";
+    @Override
+    public String getTurn() {
+        return "On turn is: " + players.get(turn.current()).getDisplayName();
     }
 
     private void onTurn(Player player) throws NotRightTurnOfPlayerException {
+        if (!players.contains(player)) {
+            throw new NotRightTurnOfPlayerException("You have left the game!");
+        }
+
         if (!player.equals(players.get(turn.current()))) {
             throw new NotRightTurnOfPlayerException(
                 "Player: " + players.get(turn.current()).getDisplayName() + " is on turn not you!");

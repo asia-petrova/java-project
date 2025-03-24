@@ -13,15 +13,15 @@ public class Skip implements Card {
 
     @Override
     public String getDescription() {
-        return "Skip " + color.toString().toLowerCase();
+        return "<Skip_" + color.toString().toLowerCase() + ">";
     }
 
     @Override
-    public boolean canPlay(Card card, Color currentColor) {
+    public boolean canPlay(Card card, Color currentColor, int incrementCount) {
         if (card == null || currentColor == null) {
             throw new IllegalArgumentException("Incorrect arguments!");
         }
-        return color == currentColor || card instanceof Skip;
+        return (color == currentColor || card instanceof Skip) && incrementCount == 1;
     }
 
     @Override

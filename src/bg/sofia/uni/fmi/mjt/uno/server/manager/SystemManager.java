@@ -42,7 +42,8 @@ public class SystemManager implements Manager {
     }
 
     @Override
-    public void addGame(String gameId, Player creator, int countOfPlayers) throws GameAlreadyExistsException {
+    public void addGame(String gameId, Player creator, int countOfPlayers) throws
+        GameAlreadyExistsException {
         if (gameId == null || creator == null || countOfPlayers < 2) {
             throw new IllegalArgumentException("Illegal argument");
         }
@@ -57,7 +58,7 @@ public class SystemManager implements Manager {
 
     @Override
     public void registerUser(String username, int password) throws UserAlreadyExistsException {
-        if (username == null ) {
+        if (username == null) {
             throw new IllegalArgumentException("Username cannot be null");
         }
 
@@ -66,7 +67,7 @@ public class SystemManager implements Manager {
 
     @Override
     public Player login(String username, int password, SelectionKey key)
-        throws UserDoesNotExistException, WrongPasswordException {
+        throws UserDoesNotExistException, WrongPasswordException, UserAlreadyExistsException {
         if (username == null || key == null) {
             throw new IllegalArgumentException("Username and key cannot be null");
         }
@@ -74,6 +75,12 @@ public class SystemManager implements Manager {
         for (Map.Entry<String, Game> entry : startedGames.entrySet()) {
             if (entry.getValue().inGame(player) != null) {
                 return entry.getValue().inGame(player);
+            }
+        }
+
+        for (Map.Entry<String, Game> entry : availableGames.entrySet()) {
+            if (entry.getValue().getCreator().equals(player)) {
+                return entry.getValue().getCreator();
             }
         }
         return player;
@@ -106,6 +113,14 @@ public class SystemManager implements Manager {
         if (!availableGames.containsKey(gameId)) {
             throw new GameDoesNotExistsException(gameId + " is not available!");
         }
+        for (Game game : availableGames.values()) {
+            if (game.inGame(player) != null) {
+                throw new GameDoesNotExistsException(
+                    "Player: " + player.getDisplayName() +
+                        " already in game! If you want to join another game first leave!");
+            }
+        }
+
         player.setDisplayName(displayName);
         player.joinGame(gameId);
         availableGames.get(gameId).putPlayer(player);
@@ -118,7 +133,7 @@ public class SystemManager implements Manager {
         }
         String gameId = player.getCreatedGame();
         if (!availableGames.containsKey(gameId)) {
-            throw new GameDoesNotExistsException(gameId + " is not available!");
+            throw new GameDoesNotExistsException("You cannot start a game!");
         }
         Game game = availableGames.get(gameId);
         if (!game.start()) {
@@ -138,7 +153,7 @@ public class SystemManager implements Manager {
         if (!startedGames.containsKey(game)) {
             throw new GameDoesNotExistsException(game + " this game does not exist!");
         }
-        return startedGames.get(game).lastPlayedCard().toString();
+        return startedGames.get(game).lastPlayedCard().getDescription();
     }
 
     @Override
@@ -159,7 +174,7 @@ public class SystemManager implements Manager {
     }
 
     @Override
-    public  String summary(String id) throws GameDoesNotExistsException {
+    public String summary(String id) throws GameDoesNotExistsException {
         if (id == null) {
             throw new IllegalArgumentException("Id cannot be null");
         }
@@ -167,6 +182,30 @@ public class SystemManager implements Manager {
             throw new GameDoesNotExistsException("This game: " + id + " is not in ended games!");
         }
         return endedGames.get(id).getHistory();
+    }
+
+    @Override
+    public void logout(Player player) throws UserDoesNotExistException, UserAlreadyExistsException {
+        users.logout(player.getUserName());
+    }
+
+    @Override
+    public void leaveGame(Player player, String gameId) throws GameDoesNotExistsException {
+        if (player == null || gameId == null) {
+            throw new IllegalArgumentException("Illegal argument");
+        }
+
+        try {
+            this.getGame(player).leaveGame(player);
+        } catch (GameDoesNotExistsException e) {
+            for (Game game : availableGames.values()) {
+                if (game.inGame(player) != null) {
+                    game.leaveGame(player);
+                    return;
+                }
+            }
+            throw e;
+        }
     }
 
     private String getGames(Collection<Game> games, String result) {
@@ -202,10 +241,11 @@ public class SystemManager implements Manager {
     @Override
     public void saveInFile() throws ProblemWithFileException {
         users.saveUsersInFile();
+        saveGameHistory();
     }
 
     private void saveGameHistory() throws ProblemWithFileException {
-        try (FileWriter file = new FileWriter(NAME_OF_FILE)) {
+        try (FileWriter file = new FileWriter(NAME_OF_FILE, true)) {
             Gson json = new Gson();
             file.write(json.toJson(users));
         } catch (IOException e) {

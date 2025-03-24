@@ -1,70 +1,79 @@
 package bg.sofia.uni.fmi.mjt.uno.client;
 
-import bg.sofia.uni.fmi.mjt.uno.client.exceptions.InvalidCountOfParameters;
-import bg.sofia.uni.fmi.mjt.uno.client.exceptions.NoSuchCommand;
-import bg.sofia.uni.fmi.mjt.uno.client.validcommand.CheckCommand;
+import bg.sofia.uni.fmi.mjt.uno.client.output.CardsOutput;
+import bg.sofia.uni.fmi.mjt.uno.client.validinput.CheckInput;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
 public class Client {
     private static final int SERVER_PORT = 5000;
-    private ByteBuffer buffer;
+    private static final int BUFFER_SIZE = 1024;
+    private static final String SERVER_HOST = "localhost";
+    private static boolean running = true;
+    private static CardsOutput output = new CardsOutput();
+
+    private static ByteBuffer buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
 
     public static void main(String[] args) {
         try (SocketChannel socketChannel = SocketChannel.open();
-             BufferedReader reader = new BufferedReader(Channels.newReader(socketChannel, StandardCharsets.UTF_8));
-             PrintWriter writer = new PrintWriter(Channels.newWriter(socketChannel, StandardCharsets.UTF_8), true);
              Scanner scanner = new Scanner(System.in)) {
+            socketChannel.connect(new InetSocketAddress(SERVER_HOST, SERVER_PORT));
 
-            socketChannel.connect(new InetSocketAddress("localhost", SERVER_PORT));
             System.out.println("Connected to the server.");
 
-            while (true) {
-                System.out.print("Enter message: ");
-                String message = scanner.nextLine();
+            iterate(scanner, socketChannel);
 
-                try {
-                    CheckCommand possibleCmd = CheckCommand.of(message);
-                    if (!possibleCmd.checkString()) {
-                        System.out.println(possibleCmd.getDescription());
-                        continue;
-                    }
-                } catch (NoSuchCommand | InvalidCountOfParameters e) {
-                    System.out.println(e.getMessage());
-                    continue;
-                }
-
-                if ("quit".equals(message)) {
-                    break;
-                }
-
-                System.out.println("Sending message <" + message + "> to the server...");
-                writer.println(message); // Изпраща съобщение с нов ред
-                writer.flush(); // Гарантира, че съобщението е изпратено
-
-                // Четене на всички редове, докато не пристигне празен ред
-                StringBuilder reply = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    if (line.isEmpty()) { // Ако съобщението е приключило
-                        break;
-                    }
-                    reply.append(line).append("\n"); // Добавяме към резултата
-                }
-
-                System.out.println("The server replied:\n" + reply);
-            }
         } catch (IOException e) {
             throw new RuntimeException("There is a problem with the network communication", e);
         }
-
     }
+
+    private static void readWriteToServet(String message, SocketChannel socketChannel) throws IOException {
+        buffer.clear(); // switch to writing mode
+        buffer.put(message.getBytes()); // buffer fill
+        buffer.flip(); // switch to reading mode
+        socketChannel.write(buffer); // buffer drain
+
+        buffer.clear(); // switch to writing mode
+        socketChannel.read(buffer); // buffer fill
+        buffer.flip(); // switch to reading mode
+
+        byte[] byteArray = new byte[buffer.remaining()];
+        buffer.get(byteArray);
+        String reply = new String(byteArray, StandardCharsets.UTF_8); // buffer drain
+
+        output.print(reply);
+    }
+
+    private static void iterate(Scanner scanner, SocketChannel socketChannel) throws IOException {
+        while (running) {
+            System.out.print("Enter command: ");
+            String message = scanner.nextLine(); // read a line from the console
+
+            if ("quit".equals(message)) {
+                return;
+            }
+            try {
+                CheckInput check = CheckInput.of(message);
+                if (check == null) {
+                    System.out.println("No such command as: " + message);
+                    continue;
+                }
+                if (!check.checkString()) {
+                    System.out.println(check.getDescription());
+                    continue;
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                continue;
+            }
+            readWriteToServet(message, socketChannel);
+        }
+    }
+
 }

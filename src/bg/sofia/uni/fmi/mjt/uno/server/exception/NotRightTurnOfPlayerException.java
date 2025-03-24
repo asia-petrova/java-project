@@ -4,4 +4,8 @@ public class NotRightTurnOfPlayerException extends Exception {
     public NotRightTurnOfPlayerException(String message) {
         super(message);
     }
+
+    public NotRightTurnOfPlayerException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

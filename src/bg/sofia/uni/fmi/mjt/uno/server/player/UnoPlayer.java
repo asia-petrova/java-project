@@ -4,31 +4,27 @@ import bg.sofia.uni.fmi.mjt.uno.server.card.Card;
 import bg.sofia.uni.fmi.mjt.uno.server.card.Color;
 import bg.sofia.uni.fmi.mjt.uno.server.deck.Deck;
 import bg.sofia.uni.fmi.mjt.uno.server.exception.CanNotPlayThisCardException;
-import bg.sofia.uni.fmi.mjt.uno.server.exception.NotInGameException;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.SocketChannel;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 public class UnoPlayer implements Player {
+    private static final int BUFFER_SIZE = 1024;
+    private ByteBuffer buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
+
     private Deck hand;
     private String userName;
     private String displayName;
-    private SelectionKey key;
 
     List<String> wonGames;
     String currentGame = "";
     String createdGame = "";
 
-    public UnoPlayer(String userName, SelectionKey key) {
+    public UnoPlayer(String userName) {
         this.userName = userName;
         this.displayName = userName;
         wonGames = new ArrayList<>();
-        this.key = key;
     }
 
     @Override
@@ -37,13 +33,13 @@ public class UnoPlayer implements Player {
     }
 
     @Override
-    public Card play(int id, Card on, Color color) throws CanNotPlayThisCardException {
-        if (on == null || color == null) {
+    public Card play(int id, Card under, Color color, int incrementCount) throws CanNotPlayThisCardException {
+        if (under == null || color == null) {
             throw new NullPointerException("Can not play Card with null color");
         }
 
         Card cardToPut = hand.getAt(id);
-        if (cardToPut.canPlay(on, color)) {
+        if (cardToPut.canPlay(under, color, incrementCount)) {
             return cardToPut;
         }
         hand.putBack(cardToPut);
@@ -60,7 +56,7 @@ public class UnoPlayer implements Player {
 
     @Override
     public String showHand() {
-        return hand.showCards();
+        return hand.showAllCards();
     }
 
     @Override
@@ -103,7 +99,7 @@ public class UnoPlayer implements Player {
 
     @Override
     public void setDisplayName(String displayName) {
-        this.displayName = displayName == null ? userName : displayName;
+        this.displayName = displayName.isEmpty() ? userName : displayName;
     }
 
     @Override
@@ -127,21 +123,11 @@ public class UnoPlayer implements Player {
     }
 
     @Override
-    public List<Card> leaveGame() throws NotInGameException {
-        currentGame = "";
-        return hand.getCards(hand.getSize());
-    }
-
-    @Override
-    public void sendMessage(String message) throws IOException {
-        if (message == null) {
-            throw new NullPointerException("Can not send null message");
+    public List<Card> leaveGame() {
+        if (hand == null) {
+            return new ArrayList<>();
         }
-        SocketChannel channel = (SocketChannel) key.channel();
-        ByteBuffer buffer = ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8));
-        buffer.flip();
-        channel.write(buffer);
-        buffer.clear();
+        return hand.getCards(hand.getSize());
     }
 
     @Override
@@ -160,8 +146,8 @@ public class UnoPlayer implements Player {
     }
 
     @Override
-    public boolean canDraw(Card topCard, Color color) {
-        return !hand.match(topCard, color);
+    public boolean canDraw(Card topCard, Color color, int incrementedCount) {
+        return !hand.match(topCard, color, incrementedCount);
     }
 
 }

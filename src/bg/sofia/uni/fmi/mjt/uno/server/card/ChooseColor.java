@@ -7,15 +7,15 @@ import java.util.function.Consumer;
 public class ChooseColor implements Card {
     @Override
     public String getDescription() {
-        return "Choose a color";
+        return "<Choose-color>";
     }
 
     @Override
-    public boolean canPlay(Card card, Color currentColor) {
+    public boolean canPlay(Card card, Color currentColor, int incrementCount) {
         if (card == null || currentColor == null) {
             throw new IllegalArgumentException("Incorrect arguments!");
         }
-        return true;
+        return incrementCount == 1;
     }
 
     @Override

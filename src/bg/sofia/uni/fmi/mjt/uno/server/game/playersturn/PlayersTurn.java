@@ -6,6 +6,7 @@ public class PlayersTurn {
     int index;
     int max;
     int increment = 1;
+    boolean change = false;
 
     public PlayersTurn(int countOfPlayers) {
         this.max = countOfPlayers - 1;
@@ -13,6 +14,10 @@ public class PlayersTurn {
     }
 
     public int next() {
+        if (change && max == 1) {
+            change = false;
+            return index;
+        }
         if (index == max && increment > 0) {
             index = 0;
             return index;
@@ -21,11 +26,13 @@ public class PlayersTurn {
             return index;
         }
 
-        return (index += increment);
+        index += increment;
+        return index;
     }
 
     public void changeDirection() {
         increment *= -1;
+        change = true;
     }
 
     public int current() {

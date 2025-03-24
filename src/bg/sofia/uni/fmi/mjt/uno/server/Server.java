@@ -92,7 +92,6 @@ public class Server {
         int readBytes = clientChannel.read(buffer);
         if (readBytes < 0) {
             System.out.println("Client has closed the connection");
-            //key.cancel();
             clientChannel.close();
             return null;
         }
@@ -105,7 +104,7 @@ public class Server {
 
     public void iterate() throws IOException {
         while (runningFlag) {
-            int readyChannels = selector.select(1000);
+            int readyChannels = selector.select();
             if (readyChannels == 0) {
                 System.out.println("No more clients connected");
                 continue;
@@ -137,10 +136,9 @@ public class Server {
     private void executeCommand(SelectionKey key, String command, SocketChannel sc) {
         String messageForClient = "";
         try {
-            logger.logMessage(new Date() + ": " + command);
             messageForClient = Command.of(command).execute(gamesManager, key);
         } catch (IOException e) {
-            logger.logProblem(new Date() + ": " + "\n\t>>" + Arrays.toString(e.getStackTrace()));
+            logger.logProblem(new Date() + ": " + e.getMessage() + "\n\t>>" + Arrays.toString(e.getStackTrace()));
             messageForClient = "There is a problem with the sever! Please try again later!";
         } catch (Exception e) {
             logger.logProblem(new Date() + ": " + e.getMessage() + "\n\t>>" + Arrays.toString(e.getStackTrace()));
@@ -148,24 +146,21 @@ public class Server {
         }
 
         try {
-            sendMessage(messageForClient, key, sc);
-            System.out.println(messageForClient);
+            sendMessage(messageForClient, sc);
         } catch (IOException e) {
             logger.logProblem(new Date() + ": " + Arrays.toString(e.getStackTrace()));
         }
     }
 
-    private void sendMessage(String message, SelectionKey key, SocketChannel sc) throws IOException {
-        message += "\n";
-        ByteBuffer buffer = ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)); // Автоматично създава буфер с данните
+    private void sendMessage(String message, SocketChannel sc) throws IOException {
+        ByteBuffer buffer = ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8));
 
-        while (buffer.hasRemaining()) { // Проверява дали има още данни за изпращане
+        while (buffer.hasRemaining()) {
             int bytesWritten = sc.write(buffer);
             System.out.println("Bytes written: " + bytesWritten);
         }
 
         System.out.println("Message fully sent: " + message);
     }
-
 
 }

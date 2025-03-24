@@ -4,4 +4,8 @@ public class GameDoesNotExistsException extends Exception {
     public GameDoesNotExistsException(String message) {
         super(message);
     }
+
+    public GameDoesNotExistsException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

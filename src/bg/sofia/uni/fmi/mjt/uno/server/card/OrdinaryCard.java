@@ -6,7 +6,6 @@ import java.util.function.Consumer;
 
 public class OrdinaryCard implements Card {
     private Color color;
-    //make validation for number
     private int number;
 
     public OrdinaryCard(Color color, int number) {
@@ -16,19 +15,20 @@ public class OrdinaryCard implements Card {
 
     @Override
     public String getDescription() {
-        return color.toString().toLowerCase() + " " + number;
+        return "<" + number + "_" + color.toString().toLowerCase() + ">";
     }
 
     @Override
-    public boolean canPlay(Card card, Color currentColor) {
+    public boolean canPlay(Card card, Color currentColor, int incrementCount) {
         if (card == null || currentColor == null) {
             throw new IllegalArgumentException("Incorrect arguments!");
         }
         if (card instanceof OrdinaryCard) {
-            int number = Integer.parseInt(card.getDescription().split(" ")[1]);
+            int number = Integer.parseInt(card.getDescription()
+                .replaceAll("[<|>]", "").split(" ")[0]);
             return number == this.number || currentColor == this.color;
         }
-        return currentColor == this.color;
+        return currentColor == this.color && incrementCount == 1;
     }
 
     @Override
